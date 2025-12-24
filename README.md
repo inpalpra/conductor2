@@ -1,8 +1,8 @@
-# Conductor Extension for Gemini CLI
+# Conductor - AI Agent Skill for Context-Driven Development
 
 **Measure twice, code once.**
 
-Conductor is a Gemini CLI extension that enables **Context-Driven Development**. It turns the Gemini CLI into a proactive project manager that follows a strict protocol to specify, plan, and implement software features and bug fixes.
+Conductor is a portable AI agent skill that enables **Context-Driven Development**. It works with Claude Code, OpenCode, Gemini CLI, and other AI coding agents, transforming them into proactive project managers that follow a strict protocol to specify, plan, and implement software features and bug fixes.
 
 Instead of just writing code, Conductor ensures a consistent, high-quality lifecycle for every task: **Context -> Spec & Plan -> Implement**.
 
@@ -19,19 +19,9 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 
 ## Installation
 
-### Gemini CLI Extension
+### Claude Code / OpenCode / AI Agent Skill
 
-Install the Conductor extension by running the following command from your terminal:
-
-```bash
-gemini extensions install https://github.com/gemini-cli-extensions/conductor --auto-update
-```
-
-The `--auto-update` is optional: if specified, it will update to new versions as they are released.
-
-### AI Agent Skill (Claude CLI / OpenCode / Codex)
-
-Conductor is also available as a portable **skill** that works with Claude CLI, OpenCode, and other AI coding agents that support the skills standard.
+Conductor is available as a portable **skill** that works with Claude CLI, OpenCode, and other AI coding agents that support the skills standard.
 
 ```bash
 # Clone the repository
@@ -51,15 +41,29 @@ The skill is installed with symlinks to this repository, so running `git pull` w
 
 After installation, restart your AI CLI. The agent will automatically detect and use Conductor when you ask to create a new feature, write a spec, plan a feature, or set up a project.
 
+### Gemini CLI Extension (Alternative)
+
+Conductor can also be installed as a Gemini CLI extension:
+
+```bash
+gemini extensions install https://github.com/gemini-cli-extensions/conductor --auto-update
+```
+
+The `--auto-update` flag is optional and will update to new versions as they are released.
+
 ## Usage
 
 Conductor is designed to manage the entire lifecycle of your development tasks.
 
-**Note on Token Consumption:** Conductor's context-driven approach involves reading and analyzing your project's context, specifications, and plans. This can lead to increased token consumption, especially in larger projects or during extensive planning and implementation phases. You can check the token consumption in the current session by running `/stats model`.
+**Note on Token Consumption:** Conductor's context-driven approach involves reading and analyzing your project's context, specifications, and plans. This can lead to increased token consumption, especially in larger projects or during extensive planning and implementation phases.
+
+**Note for Claude Code/OpenCode users:** Simply ask your agent to perform tasks like "set up conductor" or "create a new feature". The agent will automatically invoke the appropriate Conductor protocols. You don't need to use slash commands.
+
+**Note for Gemini CLI users:** Use the slash commands shown below (e.g., `/conductor:setup`).
 
 ### 1. Set Up the Project (Run Once)
 
-When you run `/conductor:setup`, Conductor helps you define the core components of your project context. This context is then used for building new components or features by you or anyone on your team.
+Ask your agent to "set up conductor" or run `/conductor:setup` (Gemini CLI). This helps you define the core components of your project context, which is then used for building new components or features by you or anyone on your team.
 
 - **Product**: Define project context (e.g. users, product goals, high-level features).
 - **Product guidelines**: Define standards (e.g. prose style, brand messaging, visual identity).
@@ -74,13 +78,9 @@ When you run `/conductor:setup`, Conductor helps you define the core components 
 - `conductor/code_styleguides/`
 - `conductor/tracks.md`
 
-```bash
-/conductor:setup
-```
-
 ### 2. Start a New Track (Feature or Bug)
 
-When you’re ready to take on a new feature or bug fix, run `/conductor:newTrack`. This initializes a **track** — a high-level unit of work. Conductor helps you generate two critical artifacts:
+Ask your agent to "create a new feature" or "start a new track", or run `/conductor:newTrack` (Gemini CLI). This initializes a **track** — a high-level unit of work. Conductor helps you generate two critical artifacts:
 
 - **Specs**: The detailed requirements for the specific job. What are we building and why?
 - **Plan**: An actionable to-do list containing phases, tasks, and sub-tasks.
@@ -90,24 +90,14 @@ When you’re ready to take on a new feature or bug fix, run `/conductor:newTrac
 - `conductor/tracks/<track_id>/plan.md`
 - `conductor/tracks/<track_id>/metadata.json`
 
-```bash
-/conductor:newTrack
-# OR with a description
-/conductor:newTrack "Add a dark mode toggle to the settings page"
-```
-
 ### 3. Implement the Track
 
-Once you approve the plan, run `/conductor:implement`. Your coding agent then works through the `plan.md` file, checking off tasks as it completes them.
+Once you approve the plan, ask your agent to "implement the track" or "start implementing", or run `/conductor:implement` (Gemini CLI). Your coding agent then works through the `plan.md` file, checking off tasks as it completes them.
 
 **Updated Artifacts:**
 - `conductor/tracks.md` (Status updates)
 - `conductor/tracks/<track_id>/plan.md` (Status updates)
 - Project context files (Synchronized on completion)
-
-```bash
-/conductor:implement
-```
 
 Conductor will:
 1.  Select the next pending task.
@@ -117,16 +107,12 @@ Conductor will:
 
 During implementation, you can also:
 
-- **Check status**: Get a high-level overview of your project's progress.
-  ```bash
-  /conductor:status
-  ```
-- **Revert work**: Undo a feature or a specific task if needed.
-  ```bash
-  /conductor:revert
-  ```
+- **Check status**: Ask "check project status" or run `/conductor:status` (Gemini CLI) to get a high-level overview of your project's progress.
+- **Revert work**: Ask "revert the last track" or run `/conductor:revert` (Gemini CLI) to undo a feature or a specific task if needed.
 
 ## Commands Reference
+
+**Note:** The slash commands below are for Gemini CLI users. Claude Code/OpenCode users should simply ask the agent to perform these tasks using natural language.
 
 | Command | Description | Artifacts |
 | :--- | :--- | :--- |
