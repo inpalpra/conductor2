@@ -39,14 +39,67 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         3.  If no match is found, or if the match is ambiguous, inform the user and ask for clarification. Suggest the next available track as below.
     -   **If no track name was provided (or if the previous step failed):**
         1.  **Identify Next Track:** Find the first track in the parsed tracks file that is NOT marked as `[x] Completed`.
-        2.  **If a next track is found:**
+        2.  **Dead Session Prevention Loop:** For each candidate track (in order):
+                a. **Check If Already Complete:** Read the track's `plan.md`
+                b. **Count Tasks:** Count tasks marked `[x]` vs `[ ]` vs `[~]`
+                c. **Skip If All Complete:** If all tasks are `[x]`:
+                        -   Announce: "Track '<track_description>' has all tasks complete. Marking as done and skipping to next."
+                        -   Update track status to `[x]` in tracks.md
+                        -   Continue to next track
+                d. **Select If Has Work:** If any `[ ]` or `[~]` tasks remain:
+                        -   Select this track for implementation
+                        -   Break the loop
+        3.  **If a next track is found:**
             -   Announce: "No track name provided. Automatically selecting the next incomplete track: '<track_description>'."
             -   Proceed with this track.
-        3.  **If no incomplete tracks are found:**
+        4.  **If no incomplete tracks are found:**
             -   Announce: "No incomplete tracks found in the tracks file. All tasks are completed!"
             -   Halt the process and await further user instructions.
 
 5.  **Handle No Selection:** If no track is selected, inform the user and await further instructions.
+
+---
+
+## 2.1 SESSION THROTTLING (CRITICAL)
+**PROTOCOL: Prevent infinite loops and resource exhaustion.**
+
+1.  **Throttle Limits:** Enforce these limits to prevent runaway sessions:
+        -   **MAX_TASKS_PER_SESSION**: 5 tasks maximum per session
+        -   **MAX_FILES_PER_SESSION**: 10 file operations maximum per session
+        -   **MAX_TIME_PER_SESSION**: 10 minutes maximum per session (check elapsed time before each task)
+        -   **MAX_HEAP_BYTES**: 8GB maximum heap usage (8589934592 bytes)
+
+2.  **Session State Tracking:**
+        -   **Task Counter**: Initialize `tasks_completed_this_session = 0`
+        -   **File Counter**: Initialize `files_processed_this_session = 0`
+        -   **Start Time**: Record session start time
+        -   **Last Task Position**: Track the last `[x]` task position to resume from next time
+
+3.  **Pre-Task Check:** Before each task execution:
+        a. **Check Task Limit:** If `tasks_completed_this_session >= MAX_TASKS_PER_SESSION`:
+                -   Announce: "Session throttle limit reached: {MAX_TASKS_PER_SESSION} tasks completed. Pausing for next session."
+                -   Skip remaining tasks in current track
+                -   Return to user with progress summary
+        b. **Check File Limit:** If `files_processed_this_session >= MAX_FILES_PER_SESSION`:
+                -   Announce: "Session file limit reached: {MAX_FILES_PER_SESSION} files processed. Pausing for next session."
+                -   Skip remaining tasks in current track
+                -   Return to user with progress summary
+        c. **Check Time Limit:** Calculate elapsed time since session start
+                -   **If Time Exceeded:** Announce: "Session time limit reached: {MAX_TIME_PER_SESSION} minutes. Pausing for next session."
+                -   Return to user with progress summary
+        d. **Check Heap Limit:** Estimate memory usage (context tokens + tool outputs)
+                -   **If Heap Approaching Limit:** Announce: "Session heap approaching 8GB limit. Pausing for next session."
+                -   Return to user with progress summary
+
+4.  **Progress Persistence:**
+        -   Update task checkboxes in `plan.md` as tasks complete
+        -   Plan.md serves as persistent state across sessions
+        -   Next session resumes from first `[ ]` task after last `[~]` or `[x]`
+
+5.  **Dead Session Prevention:**
+        -   **Skip Completed Tracks**: Never select tracks marked `[x]`
+        -   **Check Plan State**: Before selecting a `[~]` track, read its `plan.md`
+        -   **Skip If No Remaining Tasks**: If all tasks in `plan.md` are already `[x]`, mark track as complete and skip to next
 
 ---
 
@@ -66,12 +119,47 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         - `conductor/tracks/<track_id>/spec.md`
         - `conductor/workflow.md`
     c. **Error Handling:** If you fail to read any of these files, you MUST stop and inform the user of the error.
+    d. **CLEANUP CRASHED SESSIONS (Fix for dead session recursion):**
+        -   Check plan.md for any `[~]` (in-progress) tasks
+        -   **If found:** These indicate a crashed/interrupted previous session
+        -   **Action:** Change ALL `[~]` tasks back to `[ ]`
+        -   **Rationale:** Tasks should only be `[~]` while actively being executed. Leftover `[~]` means crash.
+        -   **Save:** Write updated plan.md to disk
+        -   **Announce:** Report if any tasks were reset (e.g., "Found 2 crashed tasks, reset to pending")
 
 4.  **Execute Tasks and Update Track Plan:**
-    a. **Announce:** State that you will now execute the tasks from the track's `plan.md` by following the procedures in `workflow.md`.
-    b. **Iterate Through Tasks:** You MUST now loop through each task in the track's `plan.md` one by one.
-    c. **For Each Task, You MUST:**
-        i. **Defer to Workflow:** The `workflow.md` file is the **single source of truth** for the entire task lifecycle. You MUST now read and execute the procedures defined in the "Task Workflow" section of the `workflow.md` file you have in your context. Follow its steps for implementation, testing, and committing precisely.
+    a. **Initialize Session Counters:**
+        -   `tasks_completed_this_session = 0`
+        -   `files_processed_this_session = 0`
+        -   `session_start_time = current_time()`
+        -   Count existing `[x]` tasks in plan.md (these don't count against session limit)
+
+    b. **Announce:** State that you will now execute the tasks from the track's `plan.md` by following the procedures in `workflow.md`.
+
+    c. **Iterate Through Tasks:** You MUST now loop through each task in the track's `plan.md` one by one.
+
+    d. **For Each Task, You MUST:**
+        i. **PRE-TASK THROTTLE CHECK** (from Section 2.1):
+                -   Check task/file/time/heap limits
+                -   **If any limit exceeded**:
+                        a. **RESET IN-PROGRESS TASKS**: Find any `[~]` tasks in plan.md and change back to `[ ]`
+                        b. **SAVE PLAN**: Write updated plan.md to disk
+                        c. **ANNOUNCE LIMITS**: Report which limit was hit and progress summary
+                        d. **STOP EXECUTION**: Return to user immediately
+                        e. **DO NOT continue** to next task
+                        f. **DO NOT mark track complete**
+
+        ii. **Skip Completed Tasks:** If task is already `[x]`, skip to next task
+
+        iii. **Mark Task In Progress:** Change `[ ]` to `[~]` in plan.md and save
+
+        iv. **Defer to Workflow:** The `workflow.md` file is the **single source of truth** for the entire task lifecycle. You MUST now read and execute the procedures defined in the "Task Workflow" section of the `workflow.md` file you have in your context. Follow its steps for implementation, testing, and committing precisely.
+
+        v. **Mark Task Complete:** Change `[~]` to `[x]` in plan.md and save
+
+        vi. **Increment Counters:**
+                -   `tasks_completed_this_session += 1`
+                -   `files_processed_this_session += number_of_files_touched`
 
 5.  **Verification Checkpoint:**
     -   After all tasks in the track's local `plan.md` are marked `[x]`, DO NOT mark track as complete yet.

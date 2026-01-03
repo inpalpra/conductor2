@@ -23,7 +23,7 @@ Control your code. By treating context as a managed artifact alongside your code
 
 ```bash
 # Clone the repository
-git clone https://github.com/gemini-cli-extensions/conductor.git
+git clone https://github.com/jnorthrup/gemini-cli-extensions/conductor.git
 cd conductor
 
 # Run the install script and select option 2 (Claude CLI global)
@@ -52,10 +52,12 @@ Simply ask Claude to perform tasks using natural language. Claude will automatic
 ### First Time: Set Up Your Project
 
 Ask Claude:
+
 - "Set up conductor"
 - "Initialize conductor for this project"
 
 You'll interactively define:
+
 - **Product context**: Users, goals, high-level features
 - **Product guidelines**: Prose style, brand messaging, visual identity
 - **Tech stack**: Languages, frameworks, databases
@@ -63,6 +65,7 @@ You'll interactively define:
 - **Code style guides**: Language-specific conventions
 
 **Generated files:**
+
 ```
 conductor/
 ├── product.md
@@ -79,16 +82,19 @@ conductor/
 ### Create a Feature or Bug Fix
 
 Ask Claude:
+
 - "Create a new feature for user authentication"
 - "Start a new track for the shopping cart"
 - "Plan a bug fix for the payment flow"
 
 Claude will:
+
 1. Generate a detailed spec (`spec.md`) based on your product context
 2. Create a phased implementation plan (`plan.md`) following your workflow
 3. Present both for your review and approval
 
 **Generated files:**
+
 ```
 conductor/tracks/<track_id>/
 ├── metadata.json
@@ -99,11 +105,13 @@ conductor/tracks/<track_id>/
 ### Implement the Track
 
 Ask Claude:
+
 - "Implement the track"
 - "Start implementing"
 - "Continue with the next task"
 
 Claude will:
+
 1. Select the next pending task from the plan
 2. Follow your defined workflow (e.g., write tests first if TDD is enabled)
 3. Update task status as it progresses
@@ -113,11 +121,13 @@ Claude will:
 ### Check Status
 
 Ask Claude:
+
 - "Check project status"
 - "Show conductor progress"
 - "What's the current track status?"
 
 Claude will display:
+
 - Current phase and task
 - Overall progress (completed/total tasks)
 - Next action needed
@@ -126,6 +136,7 @@ Claude will display:
 ### Revert Changes
 
 Ask Claude:
+
 - "Revert the last track"
 - "Undo the authentication feature"
 - "Roll back to before the last phase"
@@ -216,14 +227,17 @@ Claude: [Integrates with existing code following project patterns]
 ## Troubleshooting
 
 **Conductor doesn't activate:**
+
 - Ensure you restarted Claude Code after installation
 - Check that `~/.claude/skills/conductor/SKILL.md` exists
 
 **Templates not found:**
+
 - Verify symlinks: `ls -la ~/.claude/skills/conductor/`
 - Reinstall: `./skill/scripts/install.sh`
 
 **Want to update:**
+
 ```bash
 cd /path/to/conductor/repo
 git pull
@@ -232,8 +246,8 @@ git pull
 
 ## Resources
 
-- [GitHub Repository](https://github.com/gemini-cli-extensions/conductor)
-- [Report Issues](https://github.com/gemini-cli-extensions/conductor/issues)
+- [GitHub Repository](https://github.com/jnorthrup/conductor)
+- [Report Issues](https://github.com/jnorthrup/conductor/issues)
 - [General README](README.md) - Multi-platform documentation
 
 ## License
