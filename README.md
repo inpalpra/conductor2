@@ -51,6 +51,17 @@ gemini extensions install https://github.com/gemini-cli-extensions/conductor --a
 
 The `--auto-update` flag is optional and will update to new versions as they are released.
 
+### Supported agents
+
+**Conductor is compatible with the following AI agents and CLIs:**
+
+- **Claude Code / OpenCode** — Install via `./skill/scripts/install.sh` (skills standard).
+- **Gemini CLI** — Install as an extension (`gemini extensions install ...`) and use slash commands (e.g., `/conductor:setup`).
+- **GitHub Copilot (per-project)** — This repository includes a `copilot-agent/` scaffold to expose Conductor as a per-project Copilot agent (see `copilot-agent/`).
+- **Other AI CLIs that support the skills/extensions standard** — Should work by installing the `conductor` skill or the Gemini extension; if an agent lacks a native installer, use the `skill/scripts/run-conductor.sh` invoker or the TOML protocol files in `commands/conductor/`.
+
+> Note: If your agent supports skills or extensions, Conductor will generally integrate; check the agent's docs for how to install third-party skills or extensions.
+
 ## Usage
 
 Conductor is designed to manage the entire lifecycle of your development tasks.
