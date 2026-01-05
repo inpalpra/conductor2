@@ -51,6 +51,17 @@ gemini extensions install https://github.com/gemini-cli-extensions/conductor --a
 
 The `--auto-update` flag is optional and will update to new versions as they are released.
 
+### Supported agents
+
+**Conductor is compatible with the following AI agents and CLIs:**
+
+- **Claude Code / OpenCode** — Install via `./skill/scripts/install.sh` (skills standard).
+- **Gemini CLI** — Install as an extension (`gemini extensions install ...`) and use slash commands (e.g., `/conductor:setup`).
+- **GitHub Copilot (per-project)** — This repository includes a `copilot-agent/` scaffold to expose Conductor as a per-project Copilot agent (see `copilot-agent/`).
+- **Other AI CLIs that support the skills/extensions standard** — Should work by installing the `conductor` skill or the Gemini extension; if an agent lacks a native installer, use the `skill/scripts/run-conductor.sh` invoker or the TOML protocol files in `commands/conductor/`.
+
+> Note: If your agent supports skills or extensions, Conductor will generally integrate; check the agent's docs for how to install third-party skills or extensions.
+
 ## Usage
 
 Conductor is designed to manage the entire lifecycle of your development tasks.
@@ -121,6 +132,18 @@ During implementation, you can also:
 | `/conductor:implement` | Executes the tasks defined in the current track's plan. | `conductor/tracks.md`<br>`conductor/tracks/<id>/plan.md` |
 | `/conductor:status` | Displays the current progress of the tracks file and active tracks. | Reads `conductor/tracks.md` |
 | `/conductor:revert` | Reverts a track, phase, or task by analyzing git history. | Reverts git history |
+
+## Copilot Agent & Homedir Setup
+
+This repository provides a per-project GitHub Copilot agent scaffold in `copilot-agent/` that exposes the repository's `conductor` commands as Copilot actions and a set of adapters to invoke them.
+
+Quick start:
+
+1. Run validation: `./copilot-agent/validate.sh`
+2. Install homedir helpers for your user: `./copilot-agent/scripts/homedir-setup.sh`
+3. After installing the skill (`./skill/scripts/install.sh`), ask Copilot or your AI CLI to run setup, create a new track, or check status. See `copilot-agent/examples/prompts.md` for sample prompts.
+
+> Tip: The agent adapters prefer a `conductor` CLI if installed; otherwise they will point you to the TOML command definitions in `commands/conductor/` or use the repository invoker `skill/scripts/run-conductor.sh`.
 
 ## Resources
 
