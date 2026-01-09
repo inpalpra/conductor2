@@ -277,6 +277,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         - `~/.claude/skills/conductor/templates/code_styleguides/`
         - `~/.opencode/skill/conductor/templates/code_styleguides/`
         - `~/.gemini/extensions/conductor/templates/code_styleguides/`
+        - `~/.gemini/antigravity/skills/conductor/templates/code_styleguides/`
         Use the first location that exists.
     -   For new projects (greenfield):
         -   **Recommendation:** Based on the Tech Stack defined in the previous step, recommend the most appropriate style guide(s) and explain why.
@@ -292,7 +293,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
             - Ask the user for a simple confirmation to proceed with options like:
                     A) Yes, I want to proceed with the suggested code style guides.
                     B) No, I want to add more code style guides.
-    -   **Action:** Construct and execute a command to create the directory and copy all selected files. First determine which templates directory exists (checking `~/.claude/skills/conductor/templates/`, `~/.opencode/skill/conductor/templates/`, or `~/.gemini/extensions/conductor/templates/`), then copy from that location. For example: `mkdir -p conductor/code_styleguides && cp $TEMPLATES_DIR/code_styleguides/python.md $TEMPLATES_DIR/code_styleguides/javascript.md conductor/code_styleguides/`
+    -   **Action:** Construct and execute a command to create the directory and copy all selected files. First determine which templates directory exists (checking `~/.claude/skills/conductor/templates/`, `~/.opencode/skill/conductor/templates/`, `~/.gemini/extensions/conductor/templates/`, or `~/.gemini/antigravity/skills/conductor/templates/`), then copy from that location. For example: `mkdir -p conductor/code_styleguides && cp $TEMPLATES_DIR/code_styleguides/python.md $TEMPLATES_DIR/code_styleguides/javascript.md conductor/code_styleguides/`
     -   **Commit State:** Upon successful completion of the copy command, you MUST immediately write to `conductor/setup_state.json` with the exact content:
         `{"last_successful_step": "2.4_code_styleguides"}`
 
@@ -302,6 +303,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         - `~/.claude/skills/conductor/templates/workflow.md`
         - `~/.opencode/skill/conductor/templates/workflow.md`
         - `~/.gemini/extensions/conductor/templates/workflow.md`
+        - `~/.gemini/antigravity/skills/conductor/templates/workflow.md`
 2.  **Customize Workflow:**
     -   Ask the user: "Do you want to use the default workflow or customize it?"
         The default workflow includes:

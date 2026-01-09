@@ -31,11 +31,13 @@ echo "Conductor repository found at: $CONDUCTOR_ROOT"
 echo ""
 echo "Where do you want to install the skill?"
 echo ""
-echo "  1) OpenCode global    (~/.opencode/skill/conductor/)"
-echo "  2) Claude CLI global  (~/.claude/skills/conductor/)"
-echo "  3) Both"
+echo "  1) OpenCode global       (~/.opencode/skill/conductor/)"
+echo "  2) Claude CLI global     (~/.claude/skills/conductor/)"
+echo "  3) Gemini CLI extension  (~/.gemini/extensions/conductor/)"
+echo "  4) Google Antigravity    (~/.gemini/antigravity/skills/conductor/)"
+echo "  5) All above"
 echo ""
-read -p "Choose [1/2/3]: " choice
+read -p "Choose [1/2/3/4/5]: " choice
 
 case "$choice" in
     1)
@@ -45,7 +47,13 @@ case "$choice" in
         TARGETS=("$HOME/.claude/skills/conductor")
         ;;
     3)
-        TARGETS=("$HOME/.opencode/skill/conductor" "$HOME/.claude/skills/conductor")
+        TARGETS=("$HOME/.gemini/extensions/conductor")
+        ;;
+    4)
+        TARGETS=("$HOME/.gemini/antigravity/skills/conductor")
+        ;;
+    5)
+        TARGETS=("$HOME/.opencode/skill/conductor" "$HOME/.claude/skills/conductor" "$HOME/.gemini/extensions/conductor" "$HOME/.gemini/antigravity/skills/conductor")
         ;;
     *)
         echo "Invalid choice. Exiting."
