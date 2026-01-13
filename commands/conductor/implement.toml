@@ -134,7 +134,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         -   `session_start_time = current_time()`
         -   Count existing `[x]` tasks in plan.md (these don't count against session limit)
 
-    b. **Announce:** State that you will now execute the tasks from the track's `plan.md` by following the procedures in `workflow.md`.
+    b. **Announce:** State that you will now execute the tasks from the track's `plan.md` by spawning focused agents for each task. Each agent will assess completion or implement following `workflow.md` procedures.
 
     c. **Iterate Through Tasks:** You MUST now loop through each task in the track's `plan.md` one by one.
 
@@ -153,9 +153,44 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
         iii. **Mark Task In Progress:** Change `[ ]` to `[~]` in plan.md and save
 
-        iv. **Defer to Workflow:** The `workflow.md` file is the **single source of truth** for the entire task lifecycle. You MUST now read and execute the procedures defined in the "Task Workflow" section of the `workflow.md` file you have in your context. Follow its steps for implementation, testing, and committing precisely.
+        iv. **Execute Task via Focused Agent:**
+                a. **Extract Task Context:** Identify the current task name, description, and any acceptance criteria from plan.md
+                b. **Prepare Task Prompt:** Create a minimal, focused prompt:
+                   ```
+                   TASK: <task_name_from_plan>
 
-        v. **Mark Task Complete:** Change `[~]` to `[x]` in plan.md and save
+                   CONTEXT FILES:
+                   - Spec: conductor/tracks/<track_id>/spec.md
+                   - Workflow: conductor/workflow.md
+                   - Tech Stack: conductor/tech-stack.md
+
+                   OBJECTIVE:
+                   1. Read the task requirements from the spec
+                   2. Assess current codebase state - is this task already complete?
+                   3. If complete: Report completion evidence and exit
+                   4. If incomplete: Implement following workflow.md procedures exactly:
+                      - Write failing tests (Red)
+                      - Implement to pass tests (Green)
+                      - Refactor
+                      - Verify coverage >80%
+                      - Commit with git notes
+                      - Record commit SHA
+
+                   OUTPUT REQUIRED:
+                   - STATUS: COMPLETE | IMPLEMENTED
+                   - EVIDENCE: What exists now (files, tests, functionality)
+                   - COMMIT_SHA: <sha> (if implemented)
+                   - FILES_TOUCHED: <count> (if implemented)
+                   ```
+                c. **Spawn Task Agent:** Use Task tool (Claude) or shell + gemini -i (Gemini) with the focused prompt
+                d. **Await Result:** Block until task agent returns
+                e. **Parse Result:** Extract STATUS, COMMIT_SHA, FILES_TOUCHED from agent output
+                f. **Update Counters:** Add FILES_TOUCHED to files_processed_this_session
+
+        v. **Mark Task Complete:**
+                a. Change `[~]` to `[x]` in plan.md
+                b. If COMMIT_SHA was returned, append it to task: `[x] Task name [<sha>]`
+                c. Save plan.md
 
         vi. **Increment Counters:**
                 -   `tasks_completed_this_session += 1`

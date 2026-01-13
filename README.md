@@ -51,12 +51,24 @@ gemini extensions install https://github.com/gemini-cli-extensions/conductor --a
 
 The `--auto-update` flag is optional and will update to new versions as they are released.
 
+### Google Antigravity (Alternative)
+
+Conductor can be installed as an Antigravity skill via the install script:
+
+```bash
+./skill/scripts/install.sh
+# Select option 4 for Google Antigravity
+```
+
+This installs the skill to `~/.gemini/antigravity/skills/conductor/`.
+
 ### Supported agents
 
 **Conductor is compatible with the following AI agents and CLIs:**
 
 - **Claude Code / OpenCode** — Install via `./skill/scripts/install.sh` (skills standard).
 - **Gemini CLI** — Install as an extension (`gemini extensions install ...`) and use slash commands (e.g., `/conductor:setup`).
+- **Google Antigravity** — Install via `./skill/scripts/install.sh` (option 4). Uses natural language like Claude Code.
 - **GitHub Copilot (per-project)** — This repository includes a `copilot-agent/` scaffold to expose Conductor as a per-project Copilot agent (see `copilot-agent/`).
 - **Other AI CLIs that support the skills/extensions standard** — Should work by installing the `conductor` skill or the Gemini extension; if an agent lacks a native installer, use the `skill/scripts/run-conductor.sh` invoker or the TOML protocol files in `commands/conductor/`.
 
