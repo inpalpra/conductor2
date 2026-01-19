@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/jnorthrup/conductor/compare/conductor-v0.2.0...conductor-v0.3.0) (2026-01-19)
+
+
+### Features
+
+* add Google Antigravity support ([e1af3cd](https://github.com/jnorthrup/conductor/commit/e1af3cdc013fdb7d7a80d180deb1f67998070b21))
+* **implement:** add context boundary engineering for optimal task agent efficiency ([9e2d037](https://github.com/jnorthrup/conductor/commit/9e2d037763aae2010af36c2ec25abf017ff14bdf))
+
 ## [0.2.0](https://github.com/jnorthrup/conductor/compare/conductor-v0.1.1...conductor-v0.2.0) (2026-01-05)
 
 
