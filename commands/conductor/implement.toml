@@ -103,6 +103,58 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 ---
 
+## 2.2 CONTEXT BOUNDARY ENGINEERING
+**PROTOCOL: Define optimal context windows for task agents to maximize efficiency.**
+
+**CRITICAL: Task agents MUST operate under strict context budgets to prevent clutter and preserve reasoning capacity.**
+
+1.  **Context Budget Allocation (Target: <10% of available window per task):**
+    -   **ORCHESTRATOR CONTEXT** (this implement protocol): Retained by main agent only
+    -   **TASK AGENT CONTEXT**: Minimal, focused, disposable per-task
+
+2.  **Task Agent Context Boundaries (HARD LIMITS):**
+    Each spawned task agent receives ONLY:
+
+    | Component | Max Tokens | Content |
+    |-----------|------------|---------|
+    | Task Definition | 200 | Single task from plan.md with acceptance criteria |
+    | Spec Excerpt | 500 | ONLY the section of spec.md relevant to this task |
+    | Workflow Rules | 300 | Red-Green-Refactor cycle rules ONLY |
+    | Tech Stack | 200 | Language/framework constraints ONLY |
+    | Target Files | Variable | Files to be created/modified (read on-demand) |
+    | **TOTAL OVERHEAD** | **~1200** | **<10% of typical 128k context** |
+
+3.  **Context Exclusion List (NEVER pass to task agents):**
+    -   This implement.toml protocol
+    -   Full tracks.md file
+    -   Other track specs/plans
+    -   product.md (unless task explicitly requires product context)
+    -   product-guidelines.md
+    -   Git history beyond current HEAD
+    -   Previous task outputs from same session
+
+4.  **Spec Sectioning Protocol:**
+    Before spawning task agent:
+    a. Parse spec.md to identify section headers
+    b. Match current task name to relevant spec section(s)
+    c. Extract ONLY matched sections (typically 1-2)
+    d. If no clear match, extract Requirements section only
+
+5.  **On-Demand File Loading:**
+    Task agents MUST NOT preload entire codebase. Instead:
+    a. Start with task definition + spec excerpt
+    b. Agent identifies files needed via semantic search or grep
+    c. Agent loads files incrementally as needed
+    d. Each file load counts against FILES_PROCESSED limit
+
+6.  **Context Freedom Metrics:**
+    After task completion, verify:
+    -   Task agent used <10% context for overhead
+    -   Remaining 90%+ available for actual implementation reasoning
+    -   No context pollution from unrelated tracks/tasks
+
+---
+
 ## 3.0 TRACK IMPLEMENTATION
 **PROTOCOL: Execute the selected track.**
 
@@ -153,39 +205,50 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
         iii. **Mark Task In Progress:** Change `[ ]` to `[~]` in plan.md and save
 
-        iv. **Execute Task via Focused Agent:**
+        iv. **Execute Task via Focused Agent (Context-Bounded):**
                 a. **Extract Task Context:** Identify the current task name, description, and any acceptance criteria from plan.md
-                b. **Prepare Task Prompt:** Create a minimal, focused prompt:
+                b. **Apply Context Boundary Engineering (Section 2.2):**
+                   - Extract ONLY the spec section relevant to this task (~500 tokens max)
+                   - Include ONLY workflow cycle rules, not full workflow.md
+                   - Include ONLY tech constraints, not full tech-stack.md
+                   - DO NOT include this implement protocol
+                   - DO NOT include tracks.md or other track data
+                c. **Prepare Minimal Task Prompt (~1200 tokens overhead max):**
                    ```
                    TASK: <task_name_from_plan>
+                   ACCEPTANCE: <criteria_from_plan>
 
-                   CONTEXT FILES:
-                   - Spec: conductor/tracks/<track_id>/spec.md
-                   - Workflow: conductor/workflow.md
-                   - Tech Stack: conductor/tech-stack.md
+                   SPEC EXCERPT (this task only):
+                   <extracted_spec_section>
+
+                   WORKFLOW CYCLE:
+                   1. Write failing test (Red)
+                   2. Implement to pass (Green)  
+                   3. Refactor
+                   4. Verify coverage >80%
+                   5. Commit with message
+
+                   TECH CONSTRAINTS:
+                   - Language: <from tech-stack>
+                   - Framework: <from tech-stack>
+                   - Test runner: <from tech-stack>
 
                    OBJECTIVE:
-                   1. Read the task requirements from the spec
-                   2. Assess current codebase state - is this task already complete?
-                   3. If complete: Report completion evidence and exit
-                   4. If incomplete: Implement following workflow.md procedures exactly:
-                      - Write failing tests (Red)
-                      - Implement to pass tests (Green)
-                      - Refactor
-                      - Verify coverage >80%
-                      - Commit with git notes
-                      - Record commit SHA
+                   1. Assess: Is this task already complete in codebase?
+                   2. If complete: Report evidence and exit
+                   3. If incomplete: Implement following workflow cycle
+                   4. Load files on-demand only (use search/grep first)
 
-                   OUTPUT REQUIRED:
-                   - STATUS: COMPLETE | IMPLEMENTED
-                   - EVIDENCE: What exists now (files, tests, functionality)
-                   - COMMIT_SHA: <sha> (if implemented)
-                   - FILES_TOUCHED: <count> (if implemented)
+                   OUTPUT (structured):
+                   STATUS: COMPLETE | IMPLEMENTED
+                   EVIDENCE: <what exists now>
+                   COMMIT_SHA: <sha if implemented>
+                   FILES_TOUCHED: <count>
                    ```
-                c. **Spawn Task Agent:** Use Task tool (Claude) or shell + gemini -i (Gemini) with the focused prompt
-                d. **Await Result:** Block until task agent returns
-                e. **Parse Result:** Extract STATUS, COMMIT_SHA, FILES_TOUCHED from agent output
-                f. **Update Counters:** Add FILES_TOUCHED to files_processed_this_session
+                d. **Spawn Task Agent:** Use Task tool (Claude) or shell + gemini -i (Gemini) with the bounded prompt
+                e. **Await Result:** Block until task agent returns
+                f. **Parse Result:** Extract STATUS, COMMIT_SHA, FILES_TOUCHED from agent output
+                g. **Update Counters:** Add FILES_TOUCHED to files_processed_this_session
 
         v. **Mark Task Complete:**
                 a. Change `[~]` to `[x]` in plan.md
