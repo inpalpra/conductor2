@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install Conductor skill for Claude CLI / OpenCode
+# Install Conductor skill for all supported agents
 # Usage: ./install.sh
 #
 # This script creates a skill directory with symlinks to the Conductor repository,
@@ -29,37 +29,21 @@ fi
 
 echo "Conductor repository found at: $CONDUCTOR_ROOT"
 echo ""
-echo "Where do you want to install the skill?"
+echo "Installing skill for all supported agents:"
+echo "  - OpenCode global       (~/.opencode/skill/conductor/)"
+echo "  - Claude CLI global     (~/.claude/skills/conductor/)"
+echo "  - Codex global          (~/.codex/skills/conductor/)"
+echo "  - Gemini CLI extension  (~/.gemini/extensions/conductor/)"
+echo "  - Google Antigravity    (~/.gemini/antigravity/skills/conductor/)"
 echo ""
-echo "  1) OpenCode global       (~/.opencode/skill/conductor/)"
-echo "  2) Claude CLI global     (~/.claude/skills/conductor/)"
-echo "  3) Gemini CLI extension  (~/.gemini/extensions/conductor/)"
-echo "  4) Google Antigravity    (~/.gemini/antigravity/skills/conductor/)"
-echo "  5) All above"
-echo ""
-read -p "Choose [1/2/3/4/5]: " choice
 
-case "$choice" in
-    1)
-        TARGETS=("$HOME/.opencode/skill/conductor")
-        ;;
-    2)
-        TARGETS=("$HOME/.claude/skills/conductor")
-        ;;
-    3)
-        TARGETS=("$HOME/.gemini/extensions/conductor")
-        ;;
-    4)
-        TARGETS=("$HOME/.gemini/antigravity/skills/conductor")
-        ;;
-    5)
-        TARGETS=("$HOME/.opencode/skill/conductor" "$HOME/.claude/skills/conductor" "$HOME/.gemini/extensions/conductor" "$HOME/.gemini/antigravity/skills/conductor")
-        ;;
-    *)
-        echo "Invalid choice. Exiting."
-        exit 1
-        ;;
-esac
+TARGETS=(
+    "$HOME/.opencode/skill/conductor"
+    "$HOME/.claude/skills/conductor"
+    "$HOME/.codex/skills/conductor"
+    "$HOME/.gemini/extensions/conductor"
+    "$HOME/.gemini/antigravity/skills/conductor"
+)
 
 for TARGET_DIR in "${TARGETS[@]}"; do
     echo ""
@@ -73,12 +57,20 @@ for TARGET_DIR in "${TARGETS[@]}"; do
     
     # Copy SKILL.md (the only actual file)
     cp "$SKILL_DIR/SKILL.md" "$TARGET_DIR/"
+
+    # Copy Codex/OpenAI skill metadata when present
+    if [ -d "$SKILL_DIR/agents" ]; then
+        cp -R "$SKILL_DIR/agents" "$TARGET_DIR/"
+    fi
     
     # Create symlinks to conductor repo directories
     ln -s "$CONDUCTOR_ROOT/commands" "$TARGET_DIR/commands"
     ln -s "$CONDUCTOR_ROOT/templates" "$TARGET_DIR/templates"
     
     echo "  Created: $TARGET_DIR/SKILL.md"
+    if [ -f "$TARGET_DIR/agents/openai.yaml" ]; then
+        echo "  Created: $TARGET_DIR/agents/openai.yaml"
+    fi
     echo "  Symlink: $TARGET_DIR/commands -> $CONDUCTOR_ROOT/commands"
     echo "  Symlink: $TARGET_DIR/templates -> $CONDUCTOR_ROOT/templates"
 done

@@ -19,7 +19,7 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 
 ## Installation
 
-### Claude Code / OpenCode / AI Agent Skill
+### Codex / Claude Code / OpenCode / AI Agent Skill
 
 Conductor is available as a portable **skill** that works with Claude CLI, OpenCode, and other AI coding agents that support the skills standard.
 
@@ -32,10 +32,12 @@ cd conductor
 ./skill/scripts/install.sh
 ```
 
-The installer will ask where to install:
+The installer installs to all supported targets:
 1. **OpenCode global** (`~/.opencode/skill/conductor/`)
 2. **Claude CLI global** (`~/.claude/skills/conductor/`)
-3. **Both**
+3. **Codex global** (`~/.codex/skills/conductor/`)
+4. **Gemini CLI extension** (`~/.gemini/extensions/conductor/`)
+5. **Google Antigravity** (`~/.gemini/antigravity/skills/conductor/`)
 
 The skill is installed with symlinks to this repository, so running `git pull` will automatically update the skill.
 
@@ -67,8 +69,9 @@ This installs the skill to `~/.gemini/antigravity/skills/conductor/`.
 **Conductor is compatible with the following AI agents and CLIs:**
 
 - **Claude Code / OpenCode** — Install via `./skill/scripts/install.sh` (skills standard).
+- **Codex** — Install via `./skill/scripts/install.sh`.
 - **Gemini CLI** — Install as an extension (`gemini extensions install ...`) and use slash commands (e.g., `/conductor:setup`).
-- **Google Antigravity** — Install via `./skill/scripts/install.sh` (option 4). Uses natural language like Claude Code.
+- **Google Antigravity** — Install via `./skill/scripts/install.sh`. Uses natural language like Claude Code.
 - **GitHub Copilot (per-project)** — This repository includes a `copilot-agent/` scaffold to expose Conductor as a per-project Copilot agent (see `copilot-agent/`).
 - **Other AI CLIs that support the skills/extensions standard** — Should work by installing the `conductor` skill or the Gemini extension; if an agent lacks a native installer, use the `skill/scripts/run-conductor.sh` invoker or the TOML protocol files in `commands/conductor/`.
 
