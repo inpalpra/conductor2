@@ -1,9 +1,6 @@
 #!/bin/bash
-# Install Conductor skill for all supported agents
-# Usage: ./install.sh
-#
-# This script creates a skill directory with symlinks to the Conductor repository,
-# so updates to the repo are automatically reflected in the skill.
+# Install Conductor for multiple AI shells
+# Copies only the essential LLM-facing files, ignoring repo metadata.
 
 set -e
 
@@ -11,79 +8,50 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILL_DIR="$(dirname "$SCRIPT_DIR")"
 CONDUCTOR_ROOT="$(dirname "$SKILL_DIR")"
 
-echo "Conductor Skill Installer"
-echo "========================="
+echo "Conductor Installer"
+echo "==================="
 echo ""
 
-# Check if we're running from within a conductor repo
 if [ ! -f "$CONDUCTOR_ROOT/commands/conductor/setup.toml" ]; then
-    echo "Error: This script must be run from within the Conductor repository."
-    echo "Expected to find: $CONDUCTOR_ROOT/commands/conductor/setup.toml"
-    echo ""
-    echo "Please clone the repository first:"
-    echo "  git clone https://github.com/gemini-cli-extensions/conductor.git"
-    echo "  cd conductor"
-    echo "  ./skill/scripts/install.sh"
+    echo "Error: Run from within the Conductor repository."
     exit 1
 fi
 
-echo "Conductor repository found at: $CONDUCTOR_ROOT"
-echo ""
-echo "Installing skill for all supported agents:"
-echo "  - OpenCode global       (~/.opencode/skill/conductor/)"
-echo "  - Claude CLI global     (~/.claude/skills/conductor/)"
-echo "  - Codex global          (~/.codex/skills/conductor/)"
-echo "  - Gemini CLI extension  (~/.gemini/extensions/conductor/)"
-echo "  - Google Antigravity    (~/.gemini/antigravity/skills/conductor/)"
+echo "Source: $CONDUCTOR_ROOT"
 echo ""
 
-TARGETS=(
-    "$HOME/.opencode/skill/conductor"
-    "$HOME/.claude/skills/conductor"
-    "$HOME/.codex/skills/conductor"
-    "$HOME/.gemini/extensions/conductor"
-    "$HOME/.gemini/antigravity/skills/conductor"
-)
+install_skill() {
+    local TARGET="$1"
+    local CONTEXT_FILE="$2"
+    echo "  $TARGET"
+    rm -rf "$TARGET"
+    mkdir -p "$TARGET"
+    cp "$CONTEXT_FILE" "$TARGET/SKILL.md"
+    ln -s "$CONDUCTOR_ROOT/commands" "$TARGET/commands"
+    ln -s "$CONDUCTOR_ROOT/templates" "$TARGET/templates"
+}
 
-for TARGET_DIR in "${TARGETS[@]}"; do
-    echo ""
-    echo "Installing to: $TARGET_DIR"
-    
-    # Remove existing installation
-    rm -rf "$TARGET_DIR"
-    
-    # Create skill directory
-    mkdir -p "$TARGET_DIR"
-    
-    # Copy SKILL.md (the only actual file)
-    cp "$SKILL_DIR/SKILL.md" "$TARGET_DIR/"
+install_gemini() {
+    local TARGET="$1"
+    echo "  $TARGET (Gemini CLI)"
+    rm -rf "$TARGET"
+    mkdir -p "$TARGET"
+    cp "$CONDUCTOR_ROOT/GEMINI.md" "$TARGET/GEMINI.md"
+    cp "$CONDUCTOR_ROOT/gemini-extension.json" "$TARGET/gemini-extension.json"
+    ln -s "$CONDUCTOR_ROOT/commands" "$TARGET/commands"
+    ln -s "$CONDUCTOR_ROOT/templates" "$TARGET/templates"
+}
 
-    # Copy Codex/OpenAI skill metadata when present
-    if [ -d "$SKILL_DIR/agents" ]; then
-        cp -R "$SKILL_DIR/agents" "$TARGET_DIR/"
-    fi
-    
-    # Create symlinks to conductor repo directories
-    ln -s "$CONDUCTOR_ROOT/commands" "$TARGET_DIR/commands"
-    ln -s "$CONDUCTOR_ROOT/templates" "$TARGET_DIR/templates"
-    
-    echo "  Created: $TARGET_DIR/SKILL.md"
-    if [ -f "$TARGET_DIR/agents/openai.yaml" ]; then
-        echo "  Created: $TARGET_DIR/agents/openai.yaml"
-    fi
-    echo "  Symlink: $TARGET_DIR/commands -> $CONDUCTOR_ROOT/commands"
-    echo "  Symlink: $TARGET_DIR/templates -> $CONDUCTOR_ROOT/templates"
-done
+echo "Installing to:"
+install_skill "$HOME/.opencode/skill/conductor" "$SKILL_DIR/SKILL.md"
+install_skill "$HOME/.claude/skills/conductor" "$SKILL_DIR/SKILL.md"
+install_skill "$HOME/.codex/skills/conductor" "$SKILL_DIR/SKILL.md"
+install_gemini "$HOME/.gemini/extensions/conductor"
+install_skill "$HOME/.gemini/antigravity/skills/conductor" "$SKILL_DIR/SKILL.md"
 
 echo ""
-echo "Conductor skill installed successfully!"
+echo "Done. Installed:"
+echo "  commands/   -> setup, newTrack, implement, status, revert"
+echo "  templates/  -> workflow.md, code_styleguides/"
 echo ""
-echo "Structure:"
-for TARGET_DIR in "${TARGETS[@]}"; do
-    ls -la "$TARGET_DIR" 2>/dev/null || true
-done
-echo ""
-echo "The skill references the Conductor repo at: $CONDUCTOR_ROOT"
-echo "Updates to the repo (git pull) will be reflected automatically."
-echo ""
-echo "Restart your AI CLI to load the skill."
+echo "Restart your AI shell to activate."
