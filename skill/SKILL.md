@@ -51,12 +51,12 @@ The detailed protocols are in TOML format. Read the `prompt` field from each fil
 
 | Action | Protocol File |
 |--------|---------------|
-| Setup project | `commands/conductor/setup.toml` |
-| Create new track | `commands/conductor/newTrack.toml` |
-| Implement tasks | `commands/conductor/implement.toml` |
-| Review work | `commands/conductor/review.toml` |
-| Check status | `commands/conductor/status.toml` |
-| Revert changes | `commands/conductor/revert.toml` |
+| Setup project | `~/.conductor2/commands/conductor/setup.toml` |
+| Create new track | `~/.conductor2/commands/conductor/newTrack.toml` |
+| Implement tasks | `~/.conductor2/commands/conductor/implement.toml` |
+| Review work | `~/.conductor2/commands/conductor/review.toml` |
+| Check status | `~/.conductor2/commands/conductor/status.toml` |
+| Revert changes | `~/.conductor2/commands/conductor/revert.toml` |
 
 **How to read**: Each `.toml` file has a `prompt` field containing the full protocol instructions.
 
@@ -76,12 +76,12 @@ The detailed protocols are in TOML format. Read the `prompt` field from each fil
 
 ## When to Use Each Protocol
 
-- **"set up conductor" or "initialize project"** -> Read `commands/conductor/setup.toml`
-- **"new feature", "new track", "plan a feature"** -> Read `commands/conductor/newTrack.toml`
-- **"implement", "start working", "next task"** -> Read `commands/conductor/implement.toml`
-- **"review", "check my work", "code review"** -> Read `commands/conductor/review.toml`
-- **"status", "progress", "where are we"** -> Read `commands/conductor/status.toml`
-- **"revert", "undo", "rollback"** -> Read `commands/conductor/revert.toml`
+- **"set up conductor" or "initialize project"** -> Read `~/.conductor2/commands/conductor/setup.toml`
+- **"new feature", "new track", "plan a feature"** -> Read `~/.conductor2/commands/conductor/newTrack.toml`
+- **"implement", "start working", "next task"** -> Read `~/.conductor2/commands/conductor/implement.toml`
+- **"review", "check my work", "code review"** -> Read `~/.conductor2/commands/conductor/review.toml`
+- **"status", "progress", "where are we"** -> Read `~/.conductor2/commands/conductor/status.toml`
+- **"revert", "undo", "rollback"** -> Read `~/.conductor2/commands/conductor/revert.toml`
 
 ## Integration: Copilot Agent & Homedir Setup
 
@@ -91,8 +91,8 @@ Add example prompts in `copilot-agent/examples/prompts.md` to guide users and AI
 
 ## Assets
 
-- **Code Styleguides**: `templates/code_styleguides/` (general, go, python, javascript, typescript, html-css, cpp)
-- **Workflow Template**: `templates/workflow.md`
+- **Code Styleguides**: `~/.conductor2/templates/code_styleguides/` (general, go, python, javascript, typescript, html-css, cpp)
+- **Workflow Template**: `~/.conductor2/templates/workflow.md`
 
 ## Critical Rules
 
